@@ -103,6 +103,8 @@ namespace SIPSorcery.SIP
         public string CRMCompanyName { get; set; }
         public string CRMPictureURL { get; set; }
 
+        public event EventHandler CallEnded;
+
         public string DialogueName
         {
             get
@@ -186,7 +188,7 @@ namespace SIPSorcery.SIP
             Id = Guid.NewGuid();
 
             CallId = uasInviteTransaction.TransactionRequest.Header.CallId;
-            RouteSet = (uasInviteTransaction.TransactionFinalResponse != null && uasInviteTransaction.TransactionFinalResponse.Header.RecordRoutes != null) ? uasInviteTransaction.TransactionFinalResponse.Header.RecordRoutes.Reversed() : null;
+            RouteSet = (uasInviteTransaction.TransactionFinalResponse != null && uasInviteTransaction.TransactionFinalResponse.Header.RecordRoutes != null) ? uasInviteTransaction.TransactionFinalResponse.Header.RecordRoutes : null;
             LocalUserField = uasInviteTransaction.TransactionFinalResponse.Header.To.ToUserField;
             LocalTag = uasInviteTransaction.TransactionFinalResponse.Header.To.ToTag;
             RemoteUserField = uasInviteTransaction.TransactionFinalResponse.Header.From.FromUserField;
@@ -347,6 +349,11 @@ namespace SIPSorcery.SIP
                 logger.Error("Exception SIPDialogue Hangup. " + excp.Message);
                 throw;
             }
+        }
+
+        public void GotByeRequest(SIPRequest byeRequest)
+        {
+
         }
 
         private SIPProtocolsEnum GetRemoteTargetProtocol()

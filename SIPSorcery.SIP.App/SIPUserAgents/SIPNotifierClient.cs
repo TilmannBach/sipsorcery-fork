@@ -78,6 +78,7 @@ namespace SIPSorcery.SIP.App
         private string m_subscribeCallID;
         private string m_subscriptionFromTag;
         private string m_subscriptionToTag;
+        private SIPRouteSet m_subscriptionRoute;
         private bool m_subscribed;
         private int m_attempts;
         private ManualResetEvent m_waitForSubscribeResponse = new ManualResetEvent(false);
@@ -276,6 +277,11 @@ namespace SIPSorcery.SIP.App
                     subscribeRequest.Header.Event = sipEventPackage.ToString();
                     subscribeRequest.Header.CallId = subscribeCallID;
 
+                    if (m_subscriptionRoute != null)
+                    {
+                        subscribeRequest.Header.Routes = m_subscriptionRoute;
+                    }
+
                     if (!m_filter.IsNullOrBlank())
                     {
                         subscribeRequest.Body = m_filter;
@@ -416,6 +422,7 @@ namespace SIPSorcery.SIP.App
 
                     m_subscribed = true;
                     m_subscriptionToTag = sipResponse.Header.To.ToTag;
+                    m_subscriptionRoute = (sipResponse.Header.RecordRoutes != null) ? sipResponse.Header.RecordRoutes : null;
                     SubscriptionSuccessful(m_resourceURI);
                     m_waitForSubscribeResponse.Set();
                 }

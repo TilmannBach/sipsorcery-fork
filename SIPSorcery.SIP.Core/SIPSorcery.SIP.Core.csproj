@@ -263,6 +263,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="SIPCDR\SIPCDR.cs" />
+    <Compile Include="SIPEvents\IMS_IPTV\SIPEventSDF.cs" />
+    <Compile Include="SIPEvents\IMS_IPTV\SIPEventIptv.cs" />
     <Compile Include="SIPEvents\Presence\SIPEventPresenceTuple.cs" />
     <Compile Include="SIPEvents\SIPEvent.cs" />
     <Compile Include="SIPEvents\Dialog\SIPEventDialog.cs" />
@@ -359,6 +361,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="SIPEvents\IMS_IPTV\service-attachement-information.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="SIPEvents\Presence\PIDFSchema.xsd">
       <SubType>Designer</SubType>
     </None>

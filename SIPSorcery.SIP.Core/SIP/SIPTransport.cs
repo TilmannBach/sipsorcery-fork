@@ -124,6 +124,8 @@ namespace SIPSorcery.SIP
         private ManualResetEvent m_inMessageArrived = new ManualResetEvent(false);
         private bool m_closed = false;
 
+        private SIPRoute m_serviceRoute;
+
         private Dictionary<string, SIPChannel> m_sipChannels = new Dictionary<string, SIPChannel>();    // List of the physical channels that have been opened and are under management by this instance.
 
         private SIPTransactionEngine m_transactionEngine;
@@ -618,6 +620,23 @@ namespace SIPSorcery.SIP
         /// </summary>
         public void SendSIPReliable(SIPTransaction sipTransaction)
         {
+            #region added for IMS
+
+            if (m_serviceRoute != null)
+            {
+                if (sipTransaction.TransactionRequest.Header.Routes == null)
+                {
+                    sipTransaction.TransactionRequest.Header.Routes = new SIPRouteSet();
+                }
+
+                if (sipTransaction.TransactionRequest.Header.Routes.Length == 0)
+                {
+                    sipTransaction.TransactionRequest.Header.Routes.AddBottomRoute(m_serviceRoute);
+                }
+            }
+
+            #endregion
+
             if (sipTransaction.RemoteEndPoint != null && sipTransaction.RemoteEndPoint.Address.Equals(BlackholeAddress))
             {
                 sipTransaction.Retransmits = 1;
@@ -1767,6 +1786,9 @@ namespace SIPSorcery.SIP
             header.CSeqMethod = method;
             header.Allow = ALLOWED_SIP_METHODS;
 
+            if (m_serviceRoute != null)
+                header.Routes.AddBottomRoute(m_serviceRoute);
+
             SIPViaHeader viaHeader = new SIPViaHeader(localSIPEndPoint, CallProperties.CreateBranchId());
             header.Vias.PushViaHeader(viaHeader);
 
@@ -1875,6 +1897,15 @@ namespace SIPSorcery.SIP
             {
                 throw new ApplicationException("A transaction engine is required for this operation but one has not been provided.");
             }
+        }
+
+        #endregion
+
+        #region IMS specific additions
+
+        public void SetServiceRoute(SIPRoute serviceRoute)
+        {
+            m_serviceRoute = serviceRoute;
         }
 
         #endregion

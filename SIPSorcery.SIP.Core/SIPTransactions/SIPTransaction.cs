@@ -295,6 +295,9 @@ namespace SIPSorcery.SIP
                     }
                     else
                     {
+                        // tried this for fraunhofer open ims core...
+                        m_ackRequest.Header.To.ToTag = sipResponse.Header.To.ToTag;
+
                         ResendAckRequest();
                     }
                 }

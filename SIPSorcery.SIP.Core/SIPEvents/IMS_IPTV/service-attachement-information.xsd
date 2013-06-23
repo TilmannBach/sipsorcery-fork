@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- from TS 183 063 Annex M -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
+    <xs:element name="SSFList" type="tSSFList">
+        <xs:annotation>
+            <xs:documentation>XML Body of the SDF SIP Notify Response</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:complexType name="tSSFList">
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" name="SSF" type="tSSF"/>
+            <xs:element minOccurs="0" name="Extension" type="tExtension"/>
+            <xs:any maxOccurs="unbounded" minOccurs="0" namespace="##other" processContents="lax"/>
+        </xs:sequence>
+        <xs:anyAttribute namespace="##other" processContents="lax"/>
+    </xs:complexType>
+    <xs:complexType name="tSSF">
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="Description" type="tMultilingual"/>
+            <xs:element minOccurs="0" name="ServiceProvider" type="tSSFServiceProvider"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="Pull" type="tSSFPull"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="Push" type="tSSFPush"/>
+            <xs:element minOccurs="0" name="Extension" type="tExtension"/>
+            <xs:any maxOccurs="unbounded" minOccurs="0" namespace="##other" processContents="lax"/>
+        </xs:sequence>
+        <xs:attribute name="ID" type="tHexadecimal16bit" use="required"/>
+        <xs:attribute name="Technology" type="xs:string" use="required"/>
+        <xs:attribute name="Version" type="tVersion">
+            <xs:annotation>
+                <xs:documentation>The version number is incremented when one or more attributes of
+                            the SSF element have changed, so that the receiver knows whether it should update its data or
+                            not.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:anyAttribute namespace="##other" processContents="lax"/>
+    </xs:complexType>
+    <xs:simpleType name="tVersion">
+        <xs:restriction base="xs:integer">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="255"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="tSSFServiceProvider">
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" name="Name" type="tMultilingual"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="Description" type="tMultilingual"/>
+            <xs:element minOccurs="0" name="Extension" type="tExtension"/>
+        </xs:sequence>
+        <xs:attribute name="DomainName" type="tDomain" use="required">
+            <xs:annotation>
+                <xs:documentation>It is recommended that the DomainName complies with the "preferred
+                            name syntax" of RFC1034 clause 3.5</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="LogoURI" type="xs:anyURI" use="optional"/>
+        <xs:anyAttribute namespace="##other" processContents="lax"/>
+    </xs:complexType>
+    <xs:simpleType name="tDomain">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="((.|\n|\r)*)?(\.(.|\n|\r)*)+"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="tSSFPull">
+        <xs:complexContent>
+            <xs:extension base="tDataTypeList">
+                <xs:attribute name="Location" type="xs:anyURI" use="required"/>
+                <xs:anyAttribute namespace="##other" processContents="lax">
+                    <xs:annotation>
+                        <xs:documentation>Extension attribute to define further
+                                            data</xs:documentation>
+                    </xs:annotation>
+                </xs:anyAttribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="tSSFPush">
+        <xs:complexContent>
+            <xs:extension base="tDataTypeList">
+                <xs:attribute name="IpVersion" type="tVersion" use="optional"/>
+                <xs:attribute name="MulticastAddress" type="xs:string" use="required"/>
+                <xs:attribute name="MulticastPort" type="xs:unsignedShort" use="required"/>
+                <xs:attribute name="SourceAddress" type="xs:string" use="optional"/>
+                <xs:anyAttribute namespace="##other" processContents="lax">
+                    <xs:annotation>
+                        <xs:documentation> Extension attribute to define further data
+                                        </xs:documentation>
+                    </xs:annotation>
+                </xs:anyAttribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="tDataTypeList">
+        <xs:sequence maxOccurs="unbounded">
+            <xs:element name="DataType">
+                <xs:complexType>
+                    <xs:sequence maxOccurs="unbounded" minOccurs="0">
+                        <xs:element name="Segment">
+                            <xs:annotation>
+                                <xs:documentation>Segments are used to logically separate Service
+                                                            Selection information</xs:documentation>
+                            </xs:annotation>
+                            <xs:complexType>
+                                <xs:attribute name="ID" type="tHexadecimal16bit" use="required"/>
+                                <xs:attribute name="Version" type="tVersion" use="optional"/>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                    <xs:attribute name="Type" type="tHexadecimal8bit" use="required">
+                        <xs:annotation>
+                            <xs:documentation> Specify the type of Service Selection Information
+                                                    that is delivered by the SSF
+                                                </xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="tExtension">
+        <xs:sequence>
+            <xs:any maxOccurs="unbounded" minOccurs="0" processContents="lax"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="tMultilingual">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="Language" type="tLanguage" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:simpleType name="tLanguage">
+        <xs:restriction base="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <definition xml:lang="en">ISO 639-2 Language code</definition>
+                </xs:documentation>
+            </xs:annotation>
+            <xs:minLength value="3"/>
+            <xs:maxLength value="3"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="tHexadecimal8bit">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9a-fA-F]{1,2}"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="tHexadecimal16bit">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9a-fA-F]{1,4}"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

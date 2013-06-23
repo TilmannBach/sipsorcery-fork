@@ -51,8 +51,8 @@ namespace SIPSorcery.SIP
 		public const int NONCE_TIMEOUT_MINUTES = 5;							// Length of time an issued nonce is valid for.
 		public const int SIP_MAXIMUM_RECEIVE_LENGTH = 65535;				// Any SIP messages over this size will generate an error.
         public const int SIP_MAXIMUM_UDP_SEND_LENGTH = 1300;				// Any SIP messages over this size should be prevented from using a UDP transport.
-        public const string SIP_USERAGENT_STRING = "www.sipsorcery.com";
-        public const string SIP_SERVER_STRING = "www.sipsorcery.com";
+        public const string SIP_USERAGENT_STRING = "IMS Client Manager";
+        public const string SIP_SERVER_STRING = "IMSCM Server";
 		public const string SIP_REQUEST_REGEX = @"^\w+ .* SIP/.*";			// bnf:	Request-Line = Method SP Request-URI SP SIP-Version CRLF
 		public const string SIP_RESPONSE_REGEX = @"^SIP/.* \d{3}";			// bnf: Status-Line = SIP-Version SP Status-Code SP Reason-Phrase CRLF
 		public const string SIP_BRANCH_MAGICCOOKIE = "z9hG4bK";
@@ -176,6 +176,7 @@ namespace SIPSorcery.SIP
         public const string SIP_HEADER_ETAG = "SIP-ETag";                           // RFC3903
         public const string SIP_HEADER_EXPIRES = "Expires";
 		public const string SIP_HEADER_FROM = "From";
+        public const string SIP_HEADER_SIP_IF_MATCH = "SIP-If-Match";
         public const string SIP_HEADER_IN_REPLY_TO = "In-Reply-To";
         public const string SIP_HEADER_MAXFORWARDS = "Max-Forwards";
         public const string SIP_HEADER_MINEXPIRES = "Min-Expires";
@@ -195,6 +196,7 @@ namespace SIPSorcery.SIP
         public const string SIP_HEADER_RETRY_AFTER = "Retry-After";
         public const string SIP_HEADER_ROUTE = "Route";
         public const string SIP_HEADER_SERVER = "Server";
+        public const string SIP_HEADER_SERVICEROUTE = "Service-Route";
         public const string SIP_HEADER_SUBJECT = "Subject";
         public const string SIP_HEADER_SUBSCRIPTION_STATE = "Subscription-State";       // RC3265 (SIP Events).
         public const string SIP_HEADER_SUPPORTED = "Supported";

@@ -58,6 +58,8 @@ namespace SIPSorcery.SIP
         public static SIPEventPackage MessageSummary = new SIPEventPackage("message-summary");  // RFC3842 "A Message Summary and Message Waiting Indication Event Package for the Session Initiation Protocol (SIP)"
         public static SIPEventPackage Presence = new SIPEventPackage("presence");               // RFC3856.
         public static SIPEventPackage Refer = new SIPEventPackage("refer");                     // RFC3515 "The Session Initiation Protocol (SIP) Refer Method".
+        public static SIPEventPackage UaProfile = new SIPEventPackage("ua-profile");                     // IMS IPTV
+        public static SIPEventPackage Reg = new SIPEventPackage("reg");                     // IMS reg-Eevent
 
         private string m_value;
 
@@ -72,8 +74,9 @@ namespace SIPSorcery.SIP
             {
                 return false;
             }
-            else if (value.ToLower() == "dialog" || value.ToLower() == "message-summary" || 
-                value.ToLower() == "presence" || value.ToLower() == "refer")
+            else if (value.ToLower() == "dialog" || value.ToLower() == "message-summary" ||
+                value.ToLower() == "presence" || value.ToLower() == "refer" || value.ToLower() == "reg" ||
+                value.ToLower() == "ua-profile")
             {
                 return true;
             }
@@ -98,6 +101,8 @@ namespace SIPSorcery.SIP
                     case "message-summary": return SIPEventPackage.MessageSummary;
                     case "presence": return SIPEventPackage.Presence;
                     case "refer": return SIPEventPackage.Refer;
+                    case "ua-profile": return SIPEventPackage.UaProfile;
+                    case "reg": return SIPEventPackage.Reg;
                     default: throw new ArgumentException("The value is not valid for a SIPEventPackage.");
                 }
             }

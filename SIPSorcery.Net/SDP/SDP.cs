@@ -110,6 +110,8 @@ namespace SIPSorcery.Net
         public const string ICE_UFRAG_ATTRIBUTE_PREFIX = "ice-ufrag";
         public const string ICE_PWD_ATTRIBUTE_PREFIX = "ice-pwd";
 
+        public bool isWebRTC = false;
+
         private static ILog logger = AppState.logger;
 
         public decimal Version = SDP_PROTOCOL_VERSION;
@@ -163,73 +165,90 @@ namespace SIPSorcery.Net
 
                     string[] sdpLines = Regex.Split(sdpDescription, CRLF);
 
-                    foreach (string sdpLine in sdpLines)
+                    //added WebRTC handling -> dont pase SDP especially
+                    sdp.isWebRTC = sdpDescription.Contains("a=source:webrtc");
+
+                    if (sdp.isWebRTC)
                     {
-                        if (sdpLine.Trim().StartsWith("v="))
+                        foreach (string sdpLine in sdpLines)
                         {
-                            if (!Decimal.TryParse(sdpLine.Substring(2), out sdp.Version))
+                            sdp.ExtraAttributes.Add(sdpLine);
+                        }
+                    }
+                    else
+                    {
+                        foreach (string sdpLine in sdpLines)
+                        {
+                            if (sdpLine.Trim().StartsWith("v="))
                             {
-                                logger.Warn("The Version value in an SDP description could not be parsed as a decimal: " + sdpLine + ".");
-                            }
-                        }
-                        else if (sdpLine.Trim().StartsWith("o="))
-                        {
-                            string[] ownerFields = sdpLine.Substring(2).Split(' ');
-                            sdp.Username = ownerFields[0];
-                            sdp.SessionId = ownerFields[1];
-                            Int32.TryParse(ownerFields[2], out sdp.AnnouncementVersion);
-                            sdp.NetworkType = ownerFields[3];
-                            sdp.AddressType = ownerFields[4];
-                            sdp.Address = ownerFields[5];
-                        }
-                        else if (sdpLine.Trim().StartsWith("s="))
-                        {
-                            sdp.SessionName = sdpLine.Substring(2);
-                        }
-                        else if (sdpLine.Trim().StartsWith("c="))
-                        {
-                            sdp.Connection = SDPConnectionInformation.ParseConnectionInformation(sdpLine);
-                        }
-                        else if (sdpLine.Trim().StartsWith("t="))
-                        {
-                            sdp.Timing = sdpLine.Substring(2);
-                        }
-                        else if (sdpLine.Trim().StartsWith("m="))
-                        {
-                            Match mediaMatch = Regex.Match(sdpLine.Substring(2).Trim(), @"(?<type>\w+)\s+(?<port>\d+)\s+(?<transport>\S+)\s+(?<formats>.*)$");
-                            if (mediaMatch.Success)
-                            {
-                                media.Media = SDPMediaTypes.GetSDPMediaType(mediaMatch.Result("${type}"));
-                                Int32.TryParse(mediaMatch.Result("${port}"), out media.Port);
-                                media.Transport = mediaMatch.Result("${transport}");
-                                media.ParseMediaFormats(mediaMatch.Result("${formats}"));
-                            }
-                            else
-                            {
-                                logger.Warn("A media line in SDP was invalid: " + sdpLine.Substring(2) + ".");
-                            }
-                        }
-                        else if (sdpLine.Trim().StartsWith("a=" + ICE_UFRAG_ATTRIBUTE_PREFIX))
-                        {
-                            sdp.IceUfrag = sdpLine.Substring(sdpLine.IndexOf(':') + 1);
-                        }
-                        else if (sdpLine.Trim().StartsWith("a=" + ICE_PWD_ATTRIBUTE_PREFIX))
-                        {
-                            sdp.IcePwd = sdpLine.Substring(sdpLine.IndexOf(':') + 1);
-                        }
-                        else if (sdpLine.Trim().StartsWith(SDPMediaAnnouncement.MEDIA_FORMAT_ATTRIBUE_PREFIX))
-                        {
-                            Match formatAttributeMatch = Regex.Match(sdpLine.Trim(), SDPMediaAnnouncement.MEDIA_FORMAT_ATTRIBUE_PREFIX + @"(?<id>\d+)\s+(?<attribute>.*)$");
-                            if (formatAttributeMatch.Success)
-                            {
-                                int formatID;
-                                if (Int32.TryParse(formatAttributeMatch.Result("${id}"), out formatID))
+                                if (!Decimal.TryParse(sdpLine.Substring(2), out sdp.Version))
                                 {
-                                    media.AddFormatAttribute(formatID, formatAttributeMatch.Result("${attribute}"));
+                                    logger.Warn("The Version value in an SDP description could not be parsed as a decimal: " + sdpLine + ".");
+                                }
+                            }
+                            else if (sdpLine.Trim().StartsWith("o="))
+                            {
+                                string[] ownerFields = sdpLine.Substring(2).Split(' ');
+                                sdp.Username = ownerFields[0];
+                                sdp.SessionId = ownerFields[1];
+                                Int32.TryParse(ownerFields[2], out sdp.AnnouncementVersion);
+                                sdp.NetworkType = ownerFields[3];
+                                sdp.AddressType = ownerFields[4];
+                                sdp.Address = ownerFields[5];
+                            }
+                            else if (sdpLine.Trim().StartsWith("s="))
+                            {
+                                sdp.SessionName = sdpLine.Substring(2);
+                            }
+                            else if (sdpLine.Trim().StartsWith("c="))
+                            {
+                                sdp.Connection = SDPConnectionInformation.ParseConnectionInformation(sdpLine);
+                            }
+                            else if (sdpLine.Trim().StartsWith("t="))
+                            {
+                                sdp.Timing = sdpLine.Substring(2);
+                            }
+                            else if (sdpLine.Trim().StartsWith("m="))
+                            {
+                                Match mediaMatch = Regex.Match(sdpLine.Substring(2).Trim(), @"(?<type>\w+)\s+(?<port>\d+)\s+(?<transport>\S+)\s+(?<formats>.*)$");
+                                if (mediaMatch.Success)
+                                {
+                                    media.Media = SDPMediaTypes.GetSDPMediaType(mediaMatch.Result("${type}"));
+                                    Int32.TryParse(mediaMatch.Result("${port}"), out media.Port);
+                                    media.Transport = mediaMatch.Result("${transport}");
+                                    media.ParseMediaFormats(mediaMatch.Result("${formats}"));
                                 }
                                 else
                                 {
-                                    logger.Warn("Invalid media format attribute in SDP: " + sdpLine);
+                                    logger.Warn("A media line in SDP was invalid: " + sdpLine.Substring(2) + ".");
+                                }
+                            }
+                            else if (sdpLine.Trim().StartsWith("a=" + ICE_UFRAG_ATTRIBUTE_PREFIX))
+                            {
+                                sdp.IceUfrag = sdpLine.Substring(sdpLine.IndexOf(':') + 1);
+                            }
+                            else if (sdpLine.Trim().StartsWith("a=" + ICE_PWD_ATTRIBUTE_PREFIX))
+                            {
+                                sdp.IcePwd = sdpLine.Substring(sdpLine.IndexOf(':') + 1);
+                            }
+                            else if (sdpLine.Trim().StartsWith(SDPMediaAnnouncement.MEDIA_FORMAT_ATTRIBUE_PREFIX))
+                            {
+                                Match formatAttributeMatch = Regex.Match(sdpLine.Trim(), SDPMediaAnnouncement.MEDIA_FORMAT_ATTRIBUE_PREFIX + @"(?<id>\d+)\s+(?<attribute>.*)$");
+                                if (formatAttributeMatch.Success)
+                                {
+                                    int formatID;
+                                    if (Int32.TryParse(formatAttributeMatch.Result("${id}"), out formatID))
+                                    {
+                                        media.AddFormatAttribute(formatID, formatAttributeMatch.Result("${attribute}"));
+                                    }
+                                    else
+                                    {
+                                        logger.Warn("Invalid media format attribute in SDP: " + sdpLine);
+                                    }
+                                }
+                                else
+                                {
+                                    sdp.ExtraAttributes.Add(sdpLine);
                                 }
                             }
                             else
@@ -237,13 +256,8 @@ namespace SIPSorcery.Net
                                 sdp.ExtraAttributes.Add(sdpLine);
                             }
                         }
-                        else
-                        {
-                            sdp.ExtraAttributes.Add(sdpLine);
-                        }
+                        sdp.Media.Add(media);
                     }
-
-                    sdp.Media.Add(media);
                     return sdp;
                 }
                 else
@@ -265,42 +279,55 @@ namespace SIPSorcery.Net
 
         public override string ToString()
         {
-            string sdp =
-                "v=" + SDP_PROTOCOL_VERSION + CRLF +
-                "o=" + Owner + CRLF +
-                "s=" + SessionName + CRLF +
-                ((Connection != null) ? Connection.ToString() : null) +
-                "t=" + Timing + CRLF;
+            string sdp = "";
 
-            sdp += (IceUfrag != null) ? "a=" + ICE_UFRAG_ATTRIBUTE_PREFIX + ":" + IceUfrag + CRLF : null;
-            sdp += (IcePwd != null) ? "a=" + ICE_PWD_ATTRIBUTE_PREFIX + ":" + IcePwd + CRLF : null;
-            sdp += (SessionDescription == null) ? null : "i=" + SessionDescription + CRLF;
-            sdp += (URI == null) ? null : "u=" + URI + CRLF;
-
-            if (OriginatorEmailAddresses != null && OriginatorEmailAddresses.Length > 0)
+            if (this.isWebRTC)
             {
-                foreach (string originatorAddress in OriginatorEmailAddresses)
+                //no specific handling for WebRTC-SDP
+                foreach (string extra in ExtraAttributes)
                 {
-                    sdp += (originatorAddress == null) ? null : "e=" + originatorAddress + CRLF;
+                    sdp += (extra == null) ? null : extra + CRLF; ;
                 }
             }
-
-            if (OriginatorPhoneNumbers != null && OriginatorPhoneNumbers.Length > 0)
+            else
             {
-                foreach (string originatorNumber in OriginatorPhoneNumbers)
+                sdp =
+                    "v=" + SDP_PROTOCOL_VERSION + CRLF +
+                    "o=" + Owner + CRLF +
+                    "s=" + SessionName + CRLF +
+                    ((Connection != null) ? Connection.ToString() : null) +
+                    "t=" + Timing + CRLF;
+
+                sdp += (IceUfrag != null) ? "a=" + ICE_UFRAG_ATTRIBUTE_PREFIX + ":" + IceUfrag + CRLF : null;
+                sdp += (IcePwd != null) ? "a=" + ICE_PWD_ATTRIBUTE_PREFIX + ":" + IcePwd + CRLF : null;
+                sdp += (SessionDescription == null) ? null : "i=" + SessionDescription + CRLF;
+                sdp += (URI == null) ? null : "u=" + URI + CRLF;
+
+                if (OriginatorEmailAddresses != null && OriginatorEmailAddresses.Length > 0)
                 {
-                    sdp += (originatorNumber == null) ? null : "p=" + originatorNumber + CRLF;
+                    foreach (string originatorAddress in OriginatorEmailAddresses)
+                    {
+                        sdp += (originatorAddress == null) ? null : "e=" + originatorAddress + CRLF;
+                    }
                 }
-            }
 
-            foreach (SDPMediaAnnouncement media in Media)
-            {
-                sdp += (media == null) ? null : media.ToString();
-            }
+                if (OriginatorPhoneNumbers != null && OriginatorPhoneNumbers.Length > 0)
+                {
+                    foreach (string originatorNumber in OriginatorPhoneNumbers)
+                    {
+                        sdp += (originatorNumber == null) ? null : "p=" + originatorNumber + CRLF;
+                    }
+                }
 
-            foreach (string extra in ExtraAttributes)
-            {
-                sdp += (extra == null) ? null : extra + CRLF; ;
+                foreach (SDPMediaAnnouncement media in Media)
+                {
+                    sdp += (media == null) ? null : media.ToString();
+                }
+
+                foreach (string extra in ExtraAttributes)
+                {
+                    sdp += (extra == null) ? null : extra + CRLF; ;
+                }
             }
 
             return sdp;

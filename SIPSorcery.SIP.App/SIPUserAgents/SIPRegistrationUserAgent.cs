@@ -70,9 +70,12 @@ namespace SIPSorcery.SIP.App
         private string m_realm;
         private string m_registrarHost;
         private SIPURI m_contactURI;
+        private SIPParameters m_contactParams;
         private int m_expiry;
         private string m_owner;
         private string m_adminMemberID;
+
+        public string ServiceRoute;
 
         private bool m_isRegistered;
         private int m_cseq;
@@ -83,6 +86,7 @@ namespace SIPSorcery.SIP.App
         private ManualResetEvent m_waitForRegistrationMRE = new ManualResetEvent(false);
 
         public string UserAgent;                // If not null this value will replace the default user agent value in the REGISTER request.
+        public string Supported;                // defined in RFC 3261 can used for 100rel support (PRACK) or gruu
         //public bool RequestSwitchboardToken;    // If set to true a header will be set on the REGISTER request that asks the server to return a toekn that can be used by the switchboard for 3rd party authorisation.
         //public string SwitchboardToken;         // If a switchboard token is provided by the server it will be placed here.
 
@@ -122,6 +126,40 @@ namespace SIPSorcery.SIP.App
 
             Log_External = logDelegate;
         }
+
+        public SIPRegistrationUserAgent(
+    SIPTransport sipTransport,
+    SIPEndPoint outboundProxy,
+    SIPEndPoint localEndPoint,
+    SIPURI sipAccountAOR,
+    string authUsername,
+    string password,
+    string realm,
+    string registrarHost,
+    SIPContactHeader contactHeader,
+    int expiry,
+    string owner,
+    string adminMemberID,
+    SIPMonitorLogDelegate logDelegate)
+        {
+            m_sipTransport = sipTransport;
+            m_outboundProxy = outboundProxy;
+            m_localEndPoint = localEndPoint;
+            m_sipAccountAOR = sipAccountAOR;
+            m_authUsername = authUsername;
+            m_password = password;
+            m_realm = realm;
+            m_registrarHost = registrarHost;
+            m_contactURI = contactHeader.ContactURI;
+            m_contactParams = contactHeader.ContactParameters;
+            m_expiry = (expiry >= REGISTER_MINIMUM_EXPIRY && expiry <= MAX_EXPIRY) ? expiry : DEFAULT_REGISTER_EXPIRY;
+            m_owner = owner;
+            m_adminMemberID = adminMemberID;
+            m_callID = Guid.NewGuid().ToString();
+
+            Log_External = logDelegate;
+        }
+
 
         public void Start()
         {
@@ -237,6 +275,9 @@ namespace SIPSorcery.SIP.App
                         Log_External(new SIPMonitorConsoleEvent(SIPMonitorServerTypesEnum.UserAgentClient, SIPMonitorEventTypesEnum.ContactRegisterInProgress, "Initiating registration to " + m_registrarHost + " at " + registrarSIPEndPoint.ToString() + " for " + m_sipAccountAOR.ToString() + ".", m_owner));
                         SIPRequest regRequest = GetRegistrationRequest(m_localEndPoint);
 
+                        //workaround for IMS sending the initial Autentization-Header
+                        regRequest.Header.AuthenticationHeader = new SIPAuthenticationHeader(new SIPAuthorisationDigest(SIPAuthorisationHeadersEnum.Authorize, m_realm, m_authUsername, "", regRequest.URI.ToString(), "", ""));
+                        
                         SIPNonInviteTransaction regTransaction = m_sipTransport.CreateNonInviteTransaction(regRequest, registrarSIPEndPoint, m_localEndPoint, m_outboundProxy);
                         // These handlers need to be on their own threads to take the processing off the SIP transport layer.
                         regTransaction.NonInviteTransactionFinalResponseReceived += (lep, rep, tn, rsp) => { ThreadPool.QueueUserWorkItem(delegate { ServerResponseReceived(lep, rep, tn, rsp); }); };
@@ -381,6 +422,7 @@ namespace SIPSorcery.SIP.App
                 {
                     if (m_expiry > 0)
                     {
+                        ServiceRoute = sipResponse.Header.ServiceRoute;
                         m_isRegistered = true;
                         m_expiry = GetUpdatedExpiry(sipResponse);
                         //if (sipResponse.Header.SwitchboardToken != null && m_lastServerNonce != null)
@@ -541,8 +583,10 @@ namespace SIPSorcery.SIP.App
 
                 registerRequest.Header.From = new SIPFromHeader(null, m_sipAccountAOR, CallProperties.CreateNewTag());
                 registerRequest.Header.Contact[0] = new SIPContactHeader(null, m_contactURI);
+                if (m_contactParams != null) registerRequest.Header.Contact[0].ContactParameters = m_contactParams;
                 registerRequest.Header.CSeq = ++m_cseq;
                 registerRequest.Header.CallId = m_callID;
+                if(!Supported.IsNullOrBlank()) registerRequest.Header.Supported = Supported;
                 registerRequest.Header.UserAgent = (!UserAgent.IsNullOrBlank()) ? UserAgent : m_userAgent;
                 registerRequest.Header.Expires = m_expiry;
 

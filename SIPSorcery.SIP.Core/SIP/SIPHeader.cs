@@ -1808,6 +1808,8 @@ namespace SIPSorcery.SIP
         public string RetryAfter;
         public SIPRouteSet Routes = new SIPRouteSet();
         public string Server;
+        public string ServiceRoute;
+        public string SipIfMatch;
         public string Subject;
         public string SubscriptionState;                    // RFC3265 SIP Events.
         public string Supported;
@@ -2145,6 +2147,12 @@ namespace SIPSorcery.SIP
                                     sipHeader.Routes.AddBottomRoute(routeSet.PopRoute());
                                 }
                             }
+                        }
+                        #endregion
+                        #region Service-Route
+                        else if (headerNameLower == SIPHeaders.SIP_HEADER_SERVICEROUTE.ToLower())
+                        {
+                            sipHeader.ServiceRoute = headerValue;
                         }
                         #endregion
                         #region RecordRoute
@@ -2553,6 +2561,7 @@ namespace SIPSorcery.SIP
 
                 headersBuilder.Append((MaxForwards >= 0) ? SIPHeaders.SIP_HEADER_MAXFORWARDS + ": " + this.MaxForwards + m_CRLF : null);
                 headersBuilder.Append((Routes != null && Routes.Length > 0) ? SIPHeaders.SIP_HEADER_ROUTE + ": " + Routes.ToString() + m_CRLF : null);
+                headersBuilder.Append((ServiceRoute != null) ? SIPHeaders.SIP_HEADER_SERVICEROUTE + ": " + ServiceRoute + m_CRLF : null);
                 headersBuilder.Append((RecordRoutes != null && RecordRoutes.Length > 0) ? SIPHeaders.SIP_HEADER_RECORDROUTE + ": " + RecordRoutes.ToString() + m_CRLF : null);
                 headersBuilder.Append((UserAgent != null && UserAgent.Trim().Length != 0) ? SIPHeaders.SIP_HEADER_USERAGENT + ": " + this.UserAgent + m_CRLF : null);
                 headersBuilder.Append((Expires != -1) ? SIPHeaders.SIP_HEADER_EXPIRES + ": " + this.Expires + m_CRLF : null);
@@ -2598,7 +2607,8 @@ namespace SIPSorcery.SIP
                 headersBuilder.Append((ReferTo != null) ? SIPHeaders.SIP_HEADER_REFERTO + ": " + ReferTo + m_CRLF : null);
                 headersBuilder.Append((ReferredBy != null) ? SIPHeaders.SIP_HEADER_REFERREDBY + ": " + ReferredBy + m_CRLF : null);
                 headersBuilder.Append((Reason != null) ? SIPHeaders.SIP_HEADER_REASON + ": " + Reason + m_CRLF : null);
-                
+                headersBuilder.Append((SipIfMatch != null) ? SIPHeaders.SIP_HEADER_SIP_IF_MATCH + ": " + SipIfMatch + m_CRLF : null);
+
                 // Custom SIP headers.
                 headersBuilder.Append((ProxyReceivedFrom != null) ? SIPHeaders.SIP_HEADER_PROXY_RECEIVEDFROM + ": " + ProxyReceivedFrom + m_CRLF : null);
                 headersBuilder.Append((ProxyReceivedOn != null) ? SIPHeaders.SIP_HEADER_PROXY_RECEIVEDON + ": " + ProxyReceivedOn + m_CRLF : null);

@@ -165,7 +165,7 @@ namespace SIPSorcery.Net
 
                     string[] sdpLines = Regex.Split(sdpDescription, CRLF);
 
-                    //added WebRTC handling -> dont pase SDP especially
+                    //added WebRTC handling -> dont parse SDP especially
                     sdp.isWebRTC = sdpDescription.Contains("a=source:webrtc");
 
                     if (sdp.isWebRTC)

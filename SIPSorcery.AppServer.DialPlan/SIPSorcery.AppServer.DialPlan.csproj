@@ -165,26 +165,26 @@
   <ItemGroup>
     <Reference Include="agsXMPP, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ff839b81f1debe86, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\stable\agsXMPP.dll</HintPath>
+      <HintPath>..\stable\agsXMPP.dll</HintPath>
     </Reference>
     <Reference Include="GaDotNet.Common">
-      <HintPath>..\..\stable\GaDotNet.Common.dll</HintPath>
+      <HintPath>..\stable\GaDotNet.Common.dll</HintPath>
     </Reference>
     <Reference Include="Google.GData.Client, Version=2.1.0.0, Culture=neutral, PublicKeyToken=04a59ca9b0273830, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\stable\Google.GData.Client.dll</HintPath>
+      <HintPath>..\stable\Google.GData.Client.dll</HintPath>
     </Reference>
     <Reference Include="Google.GData.Contacts, Version=2.1.0.0, Culture=neutral, PublicKeyToken=7e065189dd4b982f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\stable\Google.GData.Contacts.dll</HintPath>
+      <HintPath>..\stable\Google.GData.Contacts.dll</HintPath>
     </Reference>
     <Reference Include="Google.GData.Extensions, Version=2.1.0.0, Culture=neutral, PublicKeyToken=0b4c5df2ebf20876, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\stable\Google.GData.Extensions.dll</HintPath>
+      <HintPath>..\stable\Google.GData.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="IronRuby, Version=0.9.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\stable\IronRuby.dll</HintPath>
+      <HintPath>..\stable\IronRuby.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -192,11 +192,11 @@
     </Reference>
     <Reference Include="Microsoft.Dynamic, Version=0.9.6.20, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\stable\Microsoft.Dynamic.dll</HintPath>
+      <HintPath>..\stable\Microsoft.Dynamic.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Scripting, Version=0.9.6.20, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\stable\Microsoft.Scripting.dll</HintPath>
+      <HintPath>..\stable\Microsoft.Scripting.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.2.2.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
       <SpecificVersion>False</SpecificVersion>

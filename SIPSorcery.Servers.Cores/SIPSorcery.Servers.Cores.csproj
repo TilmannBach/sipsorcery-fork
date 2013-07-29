@@ -214,19 +214,19 @@
     <Reference Include="Accessibility" />
     <Reference Include="IronPython, Version=1.0.60816.1877, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\stable\IronPython.dll</HintPath>
+      <HintPath>..\stable\IronPython.dll</HintPath>
     </Reference>
     <Reference Include="IronRuby, Version=0.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\stable\IronRuby.dll</HintPath>
+      <HintPath>..\stable\IronRuby.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\stable\log4net.dll</HintPath>
+      <HintPath>..\stable\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Scripting, Version=0.9.5.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\stable\Microsoft.Scripting.dll</HintPath>
+      <HintPath>..\stable\Microsoft.Scripting.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <Name>nunit.framework</Name>

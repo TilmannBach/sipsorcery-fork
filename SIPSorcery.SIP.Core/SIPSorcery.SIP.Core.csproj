@@ -263,7 +263,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="SIPCDR\SIPCDR.cs" />
-    <Compile Include="SIPEvents\IMS_IPTV\SIPEventSDF.cs" />
+    <Compile Include="SIPEvents\IMS_IPTV\ServiceAttachementInformation.cs" />
     <Compile Include="SIPEvents\IMS_IPTV\SIPEventIptv.cs" />
     <Compile Include="SIPEvents\Presence\SIPEventPresenceTuple.cs" />
     <Compile Include="SIPEvents\SIPEvent.cs" />

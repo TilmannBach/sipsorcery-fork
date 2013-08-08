@@ -156,10 +156,10 @@ namespace SIPSorcery.SIP.App
                 SIPResponse okResponse = SIPTransport.GetResponse(sipRequest, SIPResponseStatusCodesEnum.Ok, null);
                 m_sipTransport.SendResponse(okResponse);
 
-                //logger.Debug(sipRequest.ToString());
+                string sipEventStringUntilSemicolon = (sipRequest.Header.Event.IndexOf(";") != -1) ? sipRequest.Header.Event.Substring(0, sipRequest.Header.Event.IndexOf(";")) : sipRequest.Header.Event;
 
                 if (sipRequest.Method == SIPMethodsEnum.NOTIFY && sipRequest.Header.CallId == m_subscribeCallID &&
-                     sipRequest.Header.Event == m_sipEventPackage.ToString() && sipRequest.Body != null)
+                     sipEventStringUntilSemicolon == m_sipEventPackage.ToString() && sipRequest.Body != null)
                 {
                     if (sipRequest.Header.CSeq <= m_remoteCSeq)
                     {

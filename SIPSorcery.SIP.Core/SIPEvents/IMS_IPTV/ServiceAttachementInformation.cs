@@ -21,6 +21,7 @@ namespace SIPSorcery.SIP.IPTV
         public string SSFID;
         public string Description;
         public Uri PullLocation;
+        public string ServiceProviderDomainName;
 
         private ServiceAttachementInformation()
         {}
@@ -51,7 +52,8 @@ namespace SIPSorcery.SIP.IPTV
             tuple.SSFID = tupleElement.Attribute("ID").Value;
             tuple.Description = (tupleElement.Element("Description") != null) ? tupleElement.Element("Description").Value : null;
             tuple.PullLocation = (tupleElement.Element("Pull") != null) ? new Uri(tupleElement.Element("Pull").Attribute("Location").Value) : null;
-            
+            tuple.ServiceProviderDomainName = (tupleElement.Element("ServiceProvider") != null && tupleElement.Element("ServiceProvider").Attribute("DomainName") != null) ? tupleElement.Element("ServiceProvider").Attribute("DomainName").Value : null;
+
             return tuple;
         }
     }

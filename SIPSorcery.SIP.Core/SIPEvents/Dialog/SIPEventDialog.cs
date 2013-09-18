@@ -45,7 +45,7 @@ using SIPSorcery.Sys;
 
 namespace SIPSorcery.SIP
 {
-    public class SIPEventDialog
+    public class SIPEventDialog : SIPEvent
     {
         private static readonly string m_dialogXMLNS = SIPEventConsts.DIALOG_XML_NAMESPACE_URN;
         private static readonly string m_sipsorceryXMLNS = SIPEventConsts.SIPSORCERY_DIALOG_XML_NAMESPACE_URN;
@@ -65,7 +65,7 @@ namespace SIPSorcery.SIP
         public string SwitchboardOwner;                     // SIP Sorcery custom field that can be used to specify a sub-account as the owner of the call this dialog belongs to.
         public bool HasBeenSent;                            // Can be used by a subscription manager to indicate the event has been included in a notify request.
 
-        private SIPEventDialog()
+        public SIPEventDialog()
         { }
 
         public SIPEventDialog(string id, string state, SIPDialogue sipDialogue)

@@ -332,6 +332,9 @@ namespace SIPSorcery.SIP.App
                                 progressResponse.Header.ContentLength = progressBody.Length;
                             }
 
+                            //added for RFC 4235 compliance
+                            progressResponse.Header.Contact = SIPContactHeader.ParseContactHeader("<" + m_uasTransaction.TransactionRequest.Header.To.ToURI.ToString() + ">");
+
                             if (customHeaders != null && customHeaders.Length > 0)
                             {
                                 foreach (string header in customHeaders)

@@ -282,6 +282,13 @@ namespace SIPSorcery.SIP.App
                         subscribeRequest.Header.Routes = m_subscriptionRoute;
                     }
 
+                    // test for SipEvent type and set Accept-Header if applicable
+                    T dataType = new T();
+                    if (dataType is SIPEventDialog)
+                    {
+                        subscribeRequest.Header.Accept = SIPMIMETypes.DIALOG_INFO_CONTENT_TYPE;
+                    }
+
                     if (!m_filter.IsNullOrBlank())
                     {
                         subscribeRequest.Body = m_filter;

@@ -802,6 +802,7 @@ namespace SIPSorcery.SIP
     public class SIPContactHeader
     {
         public const string EXPIRES_PARAMETER_KEY = "expires";
+        public const string PUBGRUU_PARAMETER_KEY = "pub-gruu";
         public const string QVALUE_PARAMETER_KEY = "q";
 
         private static ILog logger = AssemblyState.logger;
@@ -849,6 +850,12 @@ namespace SIPSorcery.SIP
         {
             get { return ContactParameters.Get(QVALUE_PARAMETER_KEY); }
             set { ContactParameters.Set(QVALUE_PARAMETER_KEY, value); }
+        }
+
+        public string PubGruu
+        {
+            get { return ContactParameters.Get(PUBGRUU_PARAMETER_KEY); }
+            set { ContactParameters.Set(PUBGRUU_PARAMETER_KEY, value); }
         }
 
         private SIPUserField m_userField;

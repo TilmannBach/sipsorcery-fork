@@ -42,6 +42,7 @@ using System.Text;
 using System.Threading;
 using SIPSorcery.Sys;
 using log4net;
+using System.Xml.Linq;
 
 namespace SIPSorcery.SIP.App
 {
@@ -93,6 +94,7 @@ namespace SIPSorcery.SIP.App
         }
 
         public event Action<T> NotificationReceived;
+        public event Action<SIPEventDialog> DialogNotificationReceived;
         public event Action<SIPURI, SIPResponseStatusCodesEnum, string> SubscriptionFailed;
         public event Action<SIPURI> SubscriptionSuccessful;
 
@@ -170,8 +172,31 @@ namespace SIPSorcery.SIP.App
                         //logger.Debug("New dialog info notification request received.");
                         m_remoteCSeq = sipRequest.Header.CSeq;
                         T sipEvent = new T();
-                        sipEvent.Load(sipRequest.Body);
-                        NotificationReceived(sipEvent);
+                        if (sipEvent is SIPEventDialog)
+                        {
+                            try
+                            {
+                                XNamespace ns = SIPEventConsts.DIALOG_XML_NAMESPACE_URN;
+                                XDocument dialogDoc = XDocument.Parse(sipRequest.Body);
+
+                                var tupleElements = dialogDoc.Root.Elements(ns + "dialog");
+                                foreach (XElement tupleElement in tupleElements)
+                                {
+                                    var dialogInfo = SIPEventDialog.Parse(tupleElement);
+                                    DialogNotificationReceived(dialogInfo);
+                                }
+                            }
+                            catch (Exception excp)
+                            {
+                                logger.Error("Exception SIPEventDialog Load in SIPNotifierClient. " + excp.Message);
+                                throw;
+                            }
+                        }
+                        else
+                        {
+                            sipEvent.Load(sipRequest.Body);
+                            NotificationReceived(sipEvent);
+                        }
                     }
                 }
                 else

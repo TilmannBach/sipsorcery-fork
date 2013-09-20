@@ -533,7 +533,7 @@ namespace SIPSorcery.SIP.App
                 {
                     foreach (SIPContactHeader contactHeader in sipResponse.Header.Contact)
                     {
-                        if (contactHeader.ContactURI == m_sipAccountAOR)
+                        if (contactHeader.ContactURI == m_contactURI)
                         {
                             contactExpires = contactHeader.Expires;
                             break;

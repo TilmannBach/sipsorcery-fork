@@ -758,6 +758,10 @@ namespace SIPSorcery.SIP.App
 
             // For incoming calls forwarded via the dial plan the username needs to go into the Contact header.
             inviteHeader.Contact = new List<SIPContactHeader>() { new SIPContactHeader(null, new SIPURI(inviteRequest.URI.Scheme, localSIPEndPoint)) };
+            if (!sipCallDescriptor.Gruu.IsNullOrBlank())
+            {
+                inviteHeader.Contact[0].ContactURI.Parameters.Set(SIPCallDescriptor.GRUU_KEY, sipCallDescriptor.Gruu);
+            }
             inviteHeader.Contact[0].ContactURI.User = sipCallDescriptor.Username;
             inviteHeader.CSeqMethod = SIPMethodsEnum.INVITE;
             inviteHeader.UserAgent = m_userAgent;

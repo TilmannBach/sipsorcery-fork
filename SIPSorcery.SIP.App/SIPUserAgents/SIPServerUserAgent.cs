@@ -70,6 +70,7 @@ namespace SIPSorcery.SIP.App
         private string m_adminMemberId;
         private string m_sipUsername;
         private string m_sipDomain;
+        private string m_gruu;
         private SIPCallDirection m_sipCallDirection;
         public bool IsB2B { get { return false; } }
         public bool IsInvite
@@ -93,6 +94,12 @@ namespace SIPSorcery.SIP.App
         {
             get { return m_sipAccount; }
             set { m_sipAccount = value; }
+        }
+
+        public string Gruu
+        {
+            get { return m_gruu; }
+            set { m_gruu = value; }
         }
 
         public bool IsAuthenticated
@@ -325,6 +332,12 @@ namespace SIPSorcery.SIP.App
                                 progressResponse.Header.To.ToTag = m_uasTransaction.LocalTag;
                             }
 
+                            if (!m_gruu.IsNullOrBlank())
+                            {
+                                // wenn wir das wieder löschen muss die gruu im contact header manuell rein!
+                                progressResponse.Header.To.ToURI.Parameters.Set("gr", m_gruu);
+                            }
+
                             if (!progressBody.IsNullOrBlank())
                             {
                                 progressResponse.Body = progressBody;
@@ -332,7 +345,7 @@ namespace SIPSorcery.SIP.App
                                 progressResponse.Header.ContentLength = progressBody.Length;
                             }
 
-                            //added for RFC 4235 compliance
+                            //added contact header for RFC 4235 compliance
                             progressResponse.Header.Contact = SIPContactHeader.ParseContactHeader("<" + m_uasTransaction.TransactionRequest.Header.To.ToURI.ToString() + ">");
 
                             if (customHeaders != null && customHeaders.Length > 0)
@@ -385,6 +398,12 @@ namespace SIPSorcery.SIP.App
                     }
 
                     SIPResponse okResponse = m_uasTransaction.GetOkResponse(m_uasTransaction.TransactionRequest, m_uasTransaction.TransactionRequest.LocalSIPEndPoint, contentType, body);
+
+                    //added for gruu compatibility
+                    if (!m_gruu.IsNullOrBlank())
+                    {
+                        okResponse.Header.Contact[0].ContactURI.Parameters.Set(SIPCallDescriptor.GRUU_KEY,m_gruu);
+                    }
 
                     if (body != null)
                     {

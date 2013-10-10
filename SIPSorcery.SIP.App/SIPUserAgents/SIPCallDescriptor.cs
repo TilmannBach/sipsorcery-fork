@@ -112,6 +112,7 @@ namespace SIPSorcery.SIP.App
         public const string REQUEST_CALLER_DETAILS = "rcd";     // Dial string option to indicate the client agent would like any caller details if/when available.
         public const string ACCOUNT_CODE_KEY = "ac";            // Dial string option which indicates that the call leg is billable and the account code it should be billed against.
         public const string RATE_CODE_KEY = "rc";               // Dial string option which indicates the rate code a billable call leg should use. If no rate code is specified then the rate will be looked up based on the call destination.
+        public const string GRUU_KEY = "gr";
 
         // Switchboard dial string options.
         public const string SWITCHBOARD_LINE_NAME_KEY = "swln";             // Dial string option to set the Switchboard-LineName header on the call leg.
@@ -146,6 +147,9 @@ namespace SIPSorcery.SIP.App
         public string FromURIHost;
         public SIPDialogueTransferModesEnum TransferMode = SIPDialogueTransferModesEnum.Default;   // Determines how the call (dialogues) created by this descriptor will handle transfers (REFER requests).
         public bool RequestCallerDetails;       // If true indicates the client agent would like to pass on any caller details if/when available.
+
+        //added for IMS
+        public string Gruu;
 
         // Custom headers for sipsorcery switchboard application.
         public SwitchboardHeaders SwitchboardHeaders = new SwitchboardHeaders();
@@ -210,6 +214,36 @@ namespace SIPSorcery.SIP.App
             ContentType = contentType;
             Content = content;
             MangleIPAddress = mangleIPAddress;
+        }
+
+        public SIPCallDescriptor(
+            string username,
+            string password,
+            string uri,
+            string from,
+            string to,
+            string routeSet,
+            List<string> customHeaders,
+            string authUsername,
+            SIPCallDirection callDirection,
+            string contentType,
+            string content,
+            IPAddress mangleIPAddress,
+            string gruu)
+        {
+            Username = username;
+            Password = password;
+            Uri = uri;
+            From = from ?? m_defaultFromURI;
+            To = to ?? uri;
+            RouteSet = routeSet;
+            CustomHeaders = customHeaders ?? new List<string>();
+            AuthUsername = authUsername;
+            CallDirection = callDirection;
+            ContentType = contentType;
+            Content = content;
+            MangleIPAddress = mangleIPAddress;
+            Gruu = gruu;
         }
 
         public SIPCallDescriptor(

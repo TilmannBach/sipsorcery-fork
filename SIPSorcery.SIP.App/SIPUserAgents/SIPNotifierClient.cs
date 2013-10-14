@@ -304,7 +304,7 @@ namespace SIPSorcery.SIP.App
 
                     if (m_subscriptionRoute != null)
                     {
-                        subscribeRequest.Header.Routes = m_subscriptionRoute;
+                        subscribeRequest.Header.Routes = m_subscriptionRoute.Reversed();
                     }
 
                     // test for SipEvent type and set Accept-Header if applicable

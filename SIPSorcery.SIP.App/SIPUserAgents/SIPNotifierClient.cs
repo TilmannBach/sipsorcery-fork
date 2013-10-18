@@ -94,7 +94,7 @@ namespace SIPSorcery.SIP.App
         }
 
         public event Action<T> NotificationReceived;
-        public event Action<SIPEventDialog> DialogNotificationReceived;
+        public event Action<SIPEventDialog> DialogEventNotificationReceived;
         public event Action<SIPURI, SIPResponseStatusCodesEnum, string> SubscriptionFailed;
         public event Action<SIPURI> SubscriptionSuccessful;
 
@@ -183,7 +183,7 @@ namespace SIPSorcery.SIP.App
                                 foreach (XElement tupleElement in tupleElements)
                                 {
                                     var dialogInfo = SIPEventDialog.Parse(tupleElement);
-                                    DialogNotificationReceived(dialogInfo);
+                                    DialogEventNotificationReceived(dialogInfo);
                                 }
                             }
                             catch (Exception excp)
@@ -454,7 +454,7 @@ namespace SIPSorcery.SIP.App
 
                     m_subscribed = true;
                     m_subscriptionToTag = sipResponse.Header.To.ToTag;
-                    m_subscriptionRoute = (sipResponse.Header.RecordRoutes != null) ? sipResponse.Header.RecordRoutes : null;
+                    if (m_subscriptionRoute == null) m_subscriptionRoute = (sipResponse.Header.RecordRoutes != null) ? sipResponse.Header.RecordRoutes : null;
                     SubscriptionSuccessful(m_resourceURI);
                     m_waitForSubscribeResponse.Set();
                 }

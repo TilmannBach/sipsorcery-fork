@@ -104,6 +104,7 @@ namespace SIPSorcery.SIP
         public string CRMPictureURL { get; set; }
 
         public event EventHandler CallEnded;
+        public event EventHandler ReferAccepted;
 
         public string DialogueName
         {
@@ -351,6 +352,58 @@ namespace SIPSorcery.SIP
             }
         }
 
+        public void Transfer(SIPTransport sipTransport, SIPURI referTo, Boolean unattended, SIPEndPoint outboundProxy)
+        {
+            if (!unattended)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                try
+                {
+                    SIPEndPoint referOutboundProxy = null;
+                    if (outboundProxy != null && IPAddress.IsLoopback(outboundProxy.Address))
+                    {
+                        referOutboundProxy = outboundProxy;
+                    }
+                    else if (!ProxySendFrom.IsNullOrBlank())
+                    {
+                        referOutboundProxy = new SIPEndPoint(new IPEndPoint(SIPEndPoint.ParseSIPEndPoint(ProxySendFrom).Address, m_defaultSIPPort));
+                    }
+                    else if (outboundProxy != null)
+                    {
+                        referOutboundProxy = outboundProxy;
+                    }
+
+                    SIPEndPoint localEndPoint = (referOutboundProxy != null) ? sipTransport.GetDefaultSIPEndPoint(referOutboundProxy.Protocol) : sipTransport.GetDefaultSIPEndPoint(GetRemoteTargetProtocol());
+                    SIPRequest referRequest = GetReferRequest(localEndPoint, referTo);
+                    SIPNonInviteTransaction referTransaction = sipTransport.CreateNonInviteTransaction(referRequest, null, localEndPoint, referOutboundProxy);
+                    referTransaction.NonInviteTransactionFinalResponseReceived += referTransaction_NonInviteTransactionFinalResponseReceived;
+                    referTransaction.SendReliableRequest();
+                }
+                catch (Exception excp)
+                {
+                    logger.Error("Exception SIPDialogue Transfer. " + excp.Message);
+                    throw;
+                }
+            }
+        }
+
+        void referTransaction_NonInviteTransactionFinalResponseReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPResponse sipResponse)
+        {
+            if (sipResponse.Status == SIPResponseStatusCodesEnum.Accepted)
+            {
+                EventHandler handler = ReferAccepted;
+                if (handler != null)
+                    handler(sipResponse, EventArgs.Empty);
+            }
+            else
+            {
+                logger.Error("Error transfering call! REFER not accepted. CallId: " + sipResponse.Header.CallId);
+            }
+        }
+
         public void GotByeRequest(SIPRequest byeRequest)
         {
 
@@ -379,6 +432,26 @@ namespace SIPSorcery.SIP
             byeRequest.Header.Vias.PushViaHeader(viaHeader);
 
             return byeRequest;
+        }
+
+        private SIPRequest GetReferRequest(SIPEndPoint localSIPEndPoint, SIPURI referTo)
+        {
+            SIPRequest referRequest = new SIPRequest(SIPMethodsEnum.REFER, RemoteTarget);
+            SIPFromHeader referFromHeader = SIPFromHeader.ParseFromHeader(LocalUserField.ToString());
+            SIPToHeader referToHeader = SIPToHeader.ParseToHeader(RemoteUserField.ToString());
+            int cseq = ++CSeq;
+
+            SIPHeader referHeader = new SIPHeader(referFromHeader, referToHeader, cseq, CallId);
+            referHeader.CSeqMethod = SIPMethodsEnum.REFER;
+            referRequest.Header = referHeader;
+            referRequest.Header.ReferTo = referTo.ToString();
+            referRequest.Header.Routes = RouteSet;
+            referRequest.Header.ProxySendFrom = ProxySendFrom;
+
+            SIPViaHeader viaHeader = new SIPViaHeader(localSIPEndPoint, CallProperties.CreateBranchId());
+            referRequest.Header.Vias.PushViaHeader(viaHeader);
+
+            return referRequest;
         }
     }
 }

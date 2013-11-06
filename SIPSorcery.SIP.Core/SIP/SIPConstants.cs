@@ -191,6 +191,7 @@ namespace SIPSorcery.SIP
         public const string SIP_HEADER_REFERREDBY = "Referred-By";                  // RFC 3515 "The Session Initiation Protocol (SIP) Refer Method".
         public const string SIP_HEADER_REFERSUB = "Refer-Sub";                      // RFC 4488 Used to stop the implicit SIP event subscription on a REFER request.
         public const string SIP_HEADER_REFERTO = "Refer-To";                        // RFC 3515 "The Session Initiation Protocol (SIP) Refer Method".
+        public const string SIP_HEADER_REPLACES = "Replaces";                       // RFC 3891 SIP "Replaces" Headers
         public const string SIP_HEADER_REPLY_TO = "Reply-To";
         public const string SIP_HEADER_REQUIRE = "Require";
         public const string SIP_HEADER_RETRY_AFTER = "Retry-After";

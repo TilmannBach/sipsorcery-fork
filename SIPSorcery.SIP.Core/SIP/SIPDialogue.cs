@@ -360,6 +360,7 @@ namespace SIPSorcery.SIP
             }
             else
             {
+                TransferMode = SIPDialogueTransferModesEnum.PassThru;
                 try
                 {
                     SIPEndPoint referOutboundProxy = null;

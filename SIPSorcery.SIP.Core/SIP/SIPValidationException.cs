@@ -51,6 +51,7 @@ namespace SIPSorcery.SIP
         ViaHeader,
         NoSIPString,
         ReferToHeader,
+        ReplacesHeader,
     }
 
     public class SIPValidationException : Exception

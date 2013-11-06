@@ -77,6 +77,25 @@ namespace SIPSorcery.SIP.App
         }
     }
 
+    public class ReplacesCallDescriptor
+    {
+        public string CallId;
+        public string ToTag;
+        public string FromTag;
+        public bool EarlyOnly;
+
+        public ReplacesCallDescriptor()
+        { }
+
+        public ReplacesCallDescriptor(string callId, string fromTag, string toTag, bool earlyOnly)
+        {
+            CallId = callId;
+            ToTag = toTag;
+            FromTag = fromTag;
+            EarlyOnly = earlyOnly;
+        }
+    }
+
     public class SwitchboardHeaders
     {
         public string SwitchboardOriginalCallID;        // If set holds a call identifier and is typically the SIP Call-ID of an associated INVITE.
@@ -150,6 +169,7 @@ namespace SIPSorcery.SIP.App
 
         //added for IMS
         public string Gruu;
+        public ReplacesCallDescriptor ReplacesCall;
 
         // Custom headers for sipsorcery switchboard application.
         public SwitchboardHeaders SwitchboardHeaders = new SwitchboardHeaders();

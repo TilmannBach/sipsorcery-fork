@@ -571,6 +571,143 @@ namespace SIPSorcery.SIP
 
         #endregion
     }
+    /// <bnf>
+    /// From            =  ( "From" / "f" ) HCOLON from-spec
+    /// from-spec       =  ( name-addr / addr-spec ) *( SEMI from-param )
+    /// from-param      =  tag-param / generic-param
+    /// name-addr		=  [ display-name ] LAQUOT addr-spec RAQUOT
+    /// addr-spec		=  SIP-URI / SIPS-URI / absoluteURI
+    /// tag-param       =  "tag" EQUAL token
+    /// generic-param   =  token [ EQUAL gen-value ]
+    /// gen-value       =  token / host / quoted-string
+    /// </bnf>
+    /// <remarks>
+    /// The Replaces header only has parameters, no headers. Parameters of from ...;name=value;name2=value2.
+    /// Specific parameters: tag.
+    /// </remarks>
+    /// <bnf>
+    /// Replaces        = "Replaces" HCOLON callid *(SEMI replaces-param)
+    /// replaces-param  = to-tag / from-tag / early-flag / generic-param
+    /// to-tag          = "to-tag" EQUAL token
+    /// from-tag        = "from-tag" EQUAL token
+    /// early-flag      = "early-only"
+    /// </bnf>
+    /// <remarks>
+    /// The Replaces header only has parameters, no headers. Parameters of from ...;name=value;name2=value2.
+    /// Specific parameters: callid,to-tag,from-tag,early-flag.
+    /// 
+    /// A Replaces header field MUST contain exactly one to-tag and exactly
+    /// one from-tag, as they are required for unique dialog matching.  For
+    /// compatibility with dialogs initiated by RFC 2543 [9] compliant UAs, a
+    /// tag of zero matches both tags of zero and null.  A Replaces header
+    /// field MAY contain the early-flag.
+    /// </remarks>
+    public class SIPReplacesHeader
+    {
+        private const char PARAM_SEPARATOR = ';';
+        public const string TO_TAG = "to-tag";
+        public const string FROM_TAG = "from-tag";
+        public const string EARLY_FLAG = "early-only";
+
+        public string CallId
+        {
+            get { return m_callId; }
+            set { m_callId = value; }
+        }
+
+        public SIPParameters Parameters
+        {
+            get { return m_parameters; }
+            set { m_parameters = value; }
+        }
+
+        public string FromTag
+        {
+            get { return m_parameters.Get(FROM_TAG); }
+            set
+            {
+                if (value != null && value.Trim().Length > 0)
+                {
+                    m_parameters.Set(FROM_TAG, value);
+                }
+                else
+                {
+                    if (m_parameters.Has(FROM_TAG))
+                    {
+                        m_parameters.Remove(FROM_TAG);
+                    }
+                }
+            }
+        }
+
+        public string ToTag
+        {
+            get { return m_parameters.Get(TO_TAG); }
+            set
+            {
+                if (value != null && value.Trim().Length > 0)
+                {
+                    m_parameters.Set(TO_TAG, value);
+                }
+                else
+                {
+                    if (m_parameters.Has(TO_TAG))
+                    {
+                        m_parameters.Remove(TO_TAG);
+                    }
+                }
+            }
+        }
+
+        private SIPParameters m_parameters;
+        private string m_callId;
+
+        private SIPReplacesHeader()
+        { }
+
+        public SIPReplacesHeader(string callid, string fromTag, string toTag, bool earlyOnly)
+        {
+            if (String.IsNullOrWhiteSpace(callid))
+            {
+                throw new SIPValidationException(SIPValidationFieldsEnum.ReplacesHeader, "The SIP Replaces header could not be initialized because given callId was null or empty.");
+            }
+            else
+            {
+                m_callId = callid;
+                m_parameters = new SIPParameters("",PARAM_SEPARATOR);
+                m_parameters.Set(FROM_TAG, fromTag);
+                m_parameters.Set(TO_TAG, toTag);
+                if (earlyOnly) m_parameters.Set(EARLY_FLAG, null);
+            }
+        }
+
+        public static SIPReplacesHeader ParseReplacesHeader(string replacesHeaderStr)
+        {
+            try
+            {
+                SIPReplacesHeader replacesHeader = new SIPReplacesHeader();
+
+                replacesHeader.CallId = replacesHeaderStr.Substring(0, replacesHeaderStr.IndexOf(PARAM_SEPARATOR));
+
+                replacesHeader.m_parameters = new SIPParameters(replacesHeaderStr.Substring(replacesHeaderStr.IndexOf(PARAM_SEPARATOR) + 1), PARAM_SEPARATOR);
+
+                return replacesHeader;
+            }
+            catch (ArgumentException argExcp)
+            {
+                throw new SIPValidationException(SIPValidationFieldsEnum.ReplacesHeader, argExcp.Message);
+            }
+            catch
+            {
+                throw new SIPValidationException(SIPValidationFieldsEnum.ReplacesHeader, "The SIP Replaces header was invalid.");
+            }
+        }
+
+        public override string ToString()
+        {
+            return this.CallId + PARAM_SEPARATOR + m_parameters.ToString();
+        }
+    }
 
     /// <bnf>
     /// To				=  ( "To" / "t" ) HCOLON ( name-addr / addr-spec ) *( SEMI to-param )
@@ -1810,6 +1947,7 @@ namespace SIPSorcery.SIP
         public string ReferredBy;                           // RFC 3515 "The Session Initiation Protocol (SIP) Refer Method"
         public string ReferSub;                             // RFC 4488 If set to false indicates the implict REFER subscription should not be created.
         public string ReferTo;                              // RFC 3515 "The Session Initiation Protocol (SIP) Refer Method"
+        public SIPReplacesHeader Replaces;                             // RFC 3891 SIP "Replaces" Header
         public string ReplyTo;
         public string Require;
         public string RetryAfter;
@@ -2250,6 +2388,12 @@ namespace SIPSorcery.SIP
                             sipHeader.Reason = headerValue;
                         }
                         #endregion
+                        #region Replaces.
+                        else if (headerNameLower == SIPHeaders.SIP_HEADER_REPLACES.ToLower())
+                        {
+                            sipHeader.Replaces = SIPReplacesHeader.ParseReplacesHeader(headerValue);
+                        }
+                        #endregion
                         #region Proxy-ReceivedFrom.
                         else if (headerNameLower == SIPHeaders.SIP_HEADER_PROXY_RECEIVEDFROM.ToLower())
                         {
@@ -2590,6 +2734,7 @@ namespace SIPSorcery.SIP
                 headersBuilder.Append((Organization != null) ? SIPHeaders.SIP_HEADER_ORGANIZATION + ": " + this.Organization + m_CRLF : null);
                 headersBuilder.Append((Priority != null) ? SIPHeaders.SIP_HEADER_PRIORITY + ": " + Priority + m_CRLF : null);
                 headersBuilder.Append((ProxyRequire != null) ? SIPHeaders.SIP_HEADER_PROXY_REQUIRE + ": " + this.ProxyRequire + m_CRLF : null);
+                headersBuilder.Append((Replaces != null) ? SIPHeaders.SIP_HEADER_REPLACES + ": " + this.Replaces + m_CRLF : null);
                 headersBuilder.Append((ReplyTo != null) ? SIPHeaders.SIP_HEADER_REPLY_TO + ": " + this.ReplyTo + m_CRLF : null);
                 headersBuilder.Append((Require != null) ? SIPHeaders.SIP_HEADER_REQUIRE + ": " + Require + m_CRLF : null);
                 headersBuilder.Append((RetryAfter != null) ? SIPHeaders.SIP_HEADER_RETRY_AFTER + ": " + this.RetryAfter + m_CRLF : null);

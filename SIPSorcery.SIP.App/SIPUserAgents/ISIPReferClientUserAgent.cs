@@ -20,6 +20,6 @@ namespace SIPSorcery.SIP.App
 
         event SIPReferStateChangedDelegate ReferStateChanged;
 
-        void ReferOutOfDialog(SIPURI toUri, SIPURI fromUri, ReplacesCallDescriptor sipReplacesCallDescriptor);
+        void ReferOutOfDialog(SIPURI fromUri, SIPURI toUri, SIPURI referToUri, ReplacesCallDescriptor sipReplacesCallDescriptor);
     }
 }

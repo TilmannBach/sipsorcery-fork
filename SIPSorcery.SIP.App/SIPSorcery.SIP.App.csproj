@@ -262,6 +262,7 @@
     <Compile Include="SIPUserAgents\ISIPServerUserAgent.cs" />
     <Compile Include="SIPUserAgents\ISIPClientUserAgent.cs" />
     <Compile Include="SIPUserAgents\SIPB2BUserAgent.cs" />
+    <Compile Include="SIPUserAgents\SIPReferClientUserAgent.cs" />
     <Compile Include="SIPUserAgents\SIPRegistrationUserAgent.cs" />
     <Compile Include="SIPUserAgents\SIPServerUserAgent.cs" />
     <Compile Include="SIPUserAgents\SIPCallDescriptor.cs" />

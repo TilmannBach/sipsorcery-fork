@@ -88,6 +88,8 @@ namespace SIPSorcery.SIP.App
         Notifier = 13,
         NotifierClient = 14,
         RTCC = 15,
+        ReferUserAgentClient = 16,
+        ReferUserAgentServer = 16,
 	}
 	
 	public enum SIPMonitorEventTypesEnum
@@ -144,6 +146,7 @@ namespace SIPSorcery.SIP.App
         SubscribeFailed = 68,
         SubscribeRenew = 69,
         NotifySent = 70,
+        Refer = 71,
 	}
 
 	public class SIPMonitorEventTypes

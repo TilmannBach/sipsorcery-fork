@@ -770,7 +770,7 @@ namespace SIPSorcery.SIP.App
             // RFC 3891 "Replaces" Header
             if(sipCallDescriptor.ReplacesCall != null)
             {
-                inviteHeader.Require = (String.IsNullOrWhiteSpace(inviteHeader.Require)) ? "replaces" : ",replaces";
+                inviteHeader.Require = (String.IsNullOrWhiteSpace(inviteHeader.Require)) ? "replaces" : inviteHeader.Require + ",replaces";
                 inviteHeader.Replaces = new SIPReplacesHeader(
                     sipCallDescriptor.ReplacesCall.CallId, 
                     sipCallDescriptor.ReplacesCall.FromTag, 

@@ -94,6 +94,11 @@ namespace SIPSorcery.SIP.App
             FromTag = fromTag;
             EarlyOnly = earlyOnly;
         }
+
+        public string GetUrlEncodedReplacesUriHeader()
+        {
+            return System.Web.HttpUtility.UrlEncode(this.CallId + ";to-tag=" + this.ToTag + ";from-tag=" + this.FromTag);
+        }
     }
 
     public class SwitchboardHeaders

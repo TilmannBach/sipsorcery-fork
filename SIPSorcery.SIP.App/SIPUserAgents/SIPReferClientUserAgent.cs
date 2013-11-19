@@ -7,7 +7,7 @@ using SIPSorcery.Sys;
 
 namespace SIPSorcery.SIP.App
 {
-    class SIPReferClientUserAgent: ISIPReferClientUserAgent
+    public class SIPReferClientUserAgent: ISIPReferClientUserAgent
     {
         private static string m_userAgent = SIPConstants.SIP_USERAGENT_STRING;
         private static readonly int m_defaultSIPPort = SIPConstants.DEFAULT_SIP_PORT;
@@ -24,8 +24,8 @@ namespace SIPSorcery.SIP.App
 
         private SIPEndPoint m_serverEndPoint { get; set; }
         private SIPEndPoint m_localSIPEndPoint { get; set; }
-        public string Owner;
-        public string AdminMemberId;
+        public string Owner { get; set; }
+        public string AdminMemberId { get; set; }
 
         public SIPNonInviteTransaction ServerTransaction
         {
@@ -42,7 +42,7 @@ namespace SIPSorcery.SIP.App
             get { return m_sipCallDescriptor; }
             set { m_sipCallDescriptor = value; }
         }
-        public bool IsUACAnswered;
+        public bool IsUACAnswered { get; set; }
         private SIPTransport m_sipTransport { get; set; }
         private SIPEndPoint m_outboundProxy { get; set; }
         private SIPMonitorLogDelegate Log_External { get; set; }
@@ -78,7 +78,7 @@ namespace SIPSorcery.SIP.App
             try
             {
                 m_sipCallDescriptor = new SIPCallDescriptor(null,toUri.ToString(),fromUri.ToString(),null,null);
-                m_sipCallDescriptor.Gruu = toUri.Parameters.Get("gr");
+                m_sipCallDescriptor.Gruu = toUri.Parameters.Get(SIPCallDescriptor.GRUU_KEY);
                 m_sipCallDescriptor.ReplacesCall = sipReplacesCallDescriptor;
 
                 SIPURI callURI = SIPURI.ParseSIPURI(m_sipCallDescriptor.Uri);
@@ -152,7 +152,7 @@ namespace SIPSorcery.SIP.App
                             throw new ApplicationException("The refer request could not locate an appropriate SIP transport channel for protocol " + callURI.Protocol + ".");
                         }
 
-                        SIPRequest referRequest = GetReferRequest(m_localSIPEndPoint,referToUri);
+                        SIPRequest referRequest = GetReferRequest(m_localSIPEndPoint,referToUri, sipReplacesCallDescriptor);
 
                         // Now that we have a destination socket create a new UAC transaction for forwarded leg of the call.
                         m_serverTransaction = m_sipTransport.CreateNonInviteTransaction(referRequest, m_serverEndPoint, m_localSIPEndPoint, m_outboundProxy);
@@ -161,7 +161,7 @@ namespace SIPSorcery.SIP.App
                         m_serverTransaction.NonInviteTransactionTimedOut += m_serverTransaction_NonInviteTransactionTimedOut;
                         m_serverTransaction.TransactionTraceMessage += TransactionTraceMessage;
 
-                        m_serverTransaction.SendRequest(m_serverTransaction.TransactionRequest);
+                        m_serverTransaction.SendReliableRequest();
 
                     }
                     else
@@ -238,7 +238,7 @@ namespace SIPSorcery.SIP.App
         }
 
 
-        private SIPRequest GetReferRequest(SIPEndPoint localSIPEndPoint, SIPURI referTo)
+        private SIPRequest GetReferRequest(SIPEndPoint localSIPEndPoint, SIPURI referTo, ReplacesCallDescriptor sipReplacesCallDescriptor)
         {
             SIPRequest referRequest = new SIPRequest(SIPMethodsEnum.REFER, m_sipCallDescriptor.Uri);
             SIPFromHeader referFromHeader = SIPFromHeader.ParseFromHeader(m_sipCallDescriptor.From);
@@ -250,10 +250,22 @@ namespace SIPSorcery.SIP.App
             SIPHeader referHeader = new SIPHeader(referFromHeader, referToHeader, cseq, CallId);
             referHeader.CSeqMethod = SIPMethodsEnum.REFER;
             referRequest.Header = referHeader;
-            referRequest.Header.ReferTo = referTo.ToString();
             referRequest.Header.Routes = RouteSet;
             referRequest.Header.ProxySendFrom = m_sipCallDescriptor.ProxySendFrom;
 
+            if (sipReplacesCallDescriptor != null)
+            {
+                referTo.Headers.Set("Replaces", sipReplacesCallDescriptor.GetUrlEncodedReplacesUriHeader());
+                referRequest.Header.ReferTo = referTo.ToString();
+            }
+            else
+            { 
+                referRequest.Header.ReferTo = referTo.ToString();
+            }
+
+            // "Requires" Header
+            referRequest.Header.Require = (String.IsNullOrWhiteSpace(referRequest.Header.Require)) ? "replaces" : referRequest.Header.Require + ",replaces";
+            
             SIPViaHeader viaHeader = new SIPViaHeader(localSIPEndPoint, CallProperties.CreateBranchId());
             referRequest.Header.Vias.PushViaHeader(viaHeader);
 

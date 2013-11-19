@@ -335,7 +335,7 @@ namespace SIPSorcery.SIP.App
                             if (!m_gruu.IsNullOrBlank())
                             {
                                 // wenn wir das wieder löschen muss die gruu im contact header manuell rein!
-                                progressResponse.Header.To.ToURI.Parameters.Set("gr", m_gruu);
+                                progressResponse.Header.To.ToURI.Parameters.Set(SIPCallDescriptor.GRUU_KEY, m_gruu);
                             }
 
                             if (!progressBody.IsNullOrBlank())

@@ -13,7 +13,6 @@ namespace SIPSorcery.SIP.App
         SIPNonInviteTransaction ServerTransaction { get; }
         SIPDialogue SIPDialogue { get; }
         SIPCallDescriptor CallDescriptor { get; }
-        bool IsUACAnswered { get; }
 
         event SIPReferAcceptedDelegate ReferAccepted;
         event SIPReferDeniedDelegate ReferDenied;

@@ -57,6 +57,7 @@ namespace SIPSorcery.SIP.App
     public delegate void SIPReferDeniedDelegate(ISIPReferClientUserAgent ruac);
     public delegate void SIPReferFailedDelegate(ISIPReferClientUserAgent ruac, string errorMessage);
     public delegate void SIPReferStateChangedDelegate(ISIPReferClientUserAgent ruac, SIPResponseStatusCodesEnum statusCode);
+    public delegate void SIPReferServerStateChangedDelegate(ISIPReferServerUserAgent ruas, SIPReferStatusCodesEnum referStatus);
 
     // Authorisation delegates.
     public delegate SIPRequestAuthenticationResult SIPAuthenticateRequestDelegate(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPRequest sipRequest, SIPAccount sipAccount, SIPMonitorLogDelegate log);

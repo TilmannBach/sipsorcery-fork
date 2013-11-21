@@ -42,7 +42,6 @@ namespace SIPSorcery.SIP.App
             get { return m_sipCallDescriptor; }
             set { m_sipCallDescriptor = value; }
         }
-        public bool IsUACAnswered { get; set; }
         private SIPTransport m_sipTransport { get; set; }
         private SIPEndPoint m_outboundProxy { get; set; }
         private SIPMonitorLogDelegate Log_External { get; set; }

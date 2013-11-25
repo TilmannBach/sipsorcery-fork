@@ -125,6 +125,7 @@ namespace SIPSorcery.SIP
         private bool m_closed = false;
 
         private SIPRoute m_serviceRoute;
+        private string m_contactGruu;
 
         private Dictionary<string, SIPChannel> m_sipChannels = new Dictionary<string, SIPChannel>();    // List of the physical channels that have been opened and are under management by this instance.
 
@@ -1780,6 +1781,11 @@ namespace SIPSorcery.SIP
             request.LocalSIPEndPoint = localSIPEndPoint;
 
             SIPContactHeader contactHeader = new SIPContactHeader(null, new SIPURI(SIPSchemesEnum.sip, localSIPEndPoint));
+            if (!String.IsNullOrWhiteSpace(m_contactGruu))
+            {
+                contactHeader.ContactURI.Parameters.Set("gr", m_contactGruu);
+            }
+            
             SIPFromHeader fromHeader = new SIPFromHeader(null, contactHeader.ContactURI, CallProperties.CreateNewTag());
             SIPHeader header = new SIPHeader(contactHeader, fromHeader, to, 1, CallProperties.CreateNewCallId());
             request.Header = header;
@@ -1788,7 +1794,7 @@ namespace SIPSorcery.SIP
 
             if (m_serviceRoute != null)
                 header.Routes.AddBottomRoute(m_serviceRoute);
-
+            
             SIPViaHeader viaHeader = new SIPViaHeader(localSIPEndPoint, CallProperties.CreateBranchId());
             header.Vias.PushViaHeader(viaHeader);
 
@@ -1906,6 +1912,11 @@ namespace SIPSorcery.SIP
         public void SetServiceRoute(SIPRoute serviceRoute)
         {
             m_serviceRoute = serviceRoute;
+        }
+
+        public void SetContactGruu(string gruu)
+        {
+            m_contactGruu = gruu;
         }
 
         #endregion

@@ -121,6 +121,8 @@ namespace SIPSorcery.SIP
         udp = 1,
         tcp = 2,
         tls = 3,
+        ws = 4, // added for sip over websocket
+
         // sctp = 4,    // Not supported.
     }
 
